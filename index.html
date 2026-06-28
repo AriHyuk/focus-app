@@ -415,6 +415,14 @@ body{
     grid-template-columns:1fr !important;
   }
 }
+@keyframes fireBounce {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 2px var(--red)); }
+  50% { transform: translateY(-4px) scale(1.1); filter: drop-shadow(0 0 8px var(--yellow)); }
+}
+.streak-fire.active {
+  display: inline-block;
+  animation: fireBounce 0.8s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -480,7 +488,7 @@ body{
 
   <!-- STREAK -->
   <div class="card">
-    <span class="card-label">🔥 STREAK</span>
+    <span class="card-label"><span class="streak-fire" id="streakFireIcon">🔥</span> STREAK</span>
     <div class="streak-big" id="streakNum">0</div>
     <div class="streak-sublabel">HARI BERTURUT-TURUT</div>
     <div class="streak-progress" id="streakPips"></div>
@@ -550,6 +558,7 @@ body{
     <div class="notes-tabs">
       <button class="note-tab active" id="tab-btn-todo" onclick="switchTab('todo',this)">TO-DO</button>
       <button class="note-tab" id="tab-btn-notes" onclick="switchTab('notes',this)">NOTES</button>
+      <button class="note-tab" id="tab-btn-log" onclick="switchTab('log',this)">LOG</button>
     </div>
 
     <div id="tab-todo" class="tab-content active">
@@ -570,6 +579,20 @@ body{
 
     <div id="tab-notes" class="tab-content">
       <textarea class="notes-textarea" id="notesArea" placeholder="tulis catatan bebas di sini...&#10;&#10;auto-save otomatis ke localStorage." oninput="saveNotes()"></textarea>
+    </div>
+
+    <div id="tab-log" class="tab-content">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <span style="font-size:8px; align-self:center">SESSION HISTORY</span>
+        <div style="display:flex; gap:4px">
+           <button class="btn" style="padding:4px; font-size:6px" onclick="exportData()">EXPORT</button>
+           <button class="btn secondary" style="padding:4px; font-size:6px" onclick="importData()">IMPORT</button>
+           <input type="file" id="importFile" style="display:none" accept=".json" onchange="handleImport(event)">
+        </div>
+      </div>
+      <div id="historyList" style="max-height:120px; overflow-y:auto; border:var(--border); padding:8px; font-size:8px; line-height:1.8; background:var(--white);">
+         <div class="todo-empty" id="historyEmpty">NO SESSIONS YET</div>
+      </div>
     </div>
   </div>
 
@@ -709,9 +732,11 @@ function toggleTimer(){
           sessionsToday++;
           saveSessionData();
           checkStreakUnlock();
+          addLogEntry('focus', getFocusDur());
           notifMsg = '✓ SESI SELESAI! ' + sessionsToday + ' sesi hari ini 🔥';
         } else {
-          notifMsg = '☕ BREAK SELESAI! SIAP FOKUS LAGI?';
+          addLogEntry('break', getBreakDur());
+          notifMsg = '⏱ BREAK SELESAI! Siap fokus lagi?';
         }
         
         showToast(notifMsg);
@@ -756,7 +781,10 @@ function skipPhase(){
     sessionsToday++;
     saveSessionData();
     checkStreakUnlock();
+    addLogEntry('focus', getFocusDur());
     showToast('⏭ SKIP! SESI KE-'+sessionsToday+' DIHITUNG');
+  } else {
+    addLogEntry('break', getBreakDur());
   }
   isFocus = !isFocus;
   timeLeft = isFocus ? getFocusDur() : getBreakDur();
@@ -826,13 +854,16 @@ function calcStreak(){
 function checkStreakUnlock(){
   updatePips();
   const goal = getDailyGoal();
+  const fireIcon = document.getElementById('streakFireIcon');
   if(sessionsToday >= goal){
     document.getElementById('streakMsg').classList.add('show');
+    if(fireIcon) fireIcon.classList.add('active');
     if(sessionsToday === goal){
       showToast('🔥 STREAK AKTIF!<br>TARGET HARI INI TERCAPAI!', 4000);
     }
   } else {
     document.getElementById('streakMsg').classList.remove('show');
+    if(fireIcon) fireIcon.classList.remove('active');
   }
   buildWeekRow();
 }
@@ -1150,6 +1181,85 @@ function saveNotes(){
   localStorage.setItem('focusOS_notes', document.getElementById('notesArea').value);
 }
 
+// ─── LOG HISTORY & BACKUP ────────────────────────────────
+let sessionLogs = JSON.parse(localStorage.getItem('focusOS_history') || '[]');
+
+function addLogEntry(type, minutes) {
+  const now = new Date();
+  sessionLogs.unshift({
+    time: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+    date: now.toLocaleDateString(),
+    type: type,
+    minutes: minutes
+  });
+  if(sessionLogs.length > 50) sessionLogs.pop();
+  localStorage.setItem('focusOS_history', JSON.stringify(sessionLogs));
+  renderLogs();
+}
+
+function renderLogs() {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if(!list) return;
+  list.innerHTML = '';
+  if(sessionLogs.length === 0) {
+    list.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
+  sessionLogs.forEach(log => {
+    const el = document.createElement('div');
+    el.style.borderBottom = '1px solid var(--black)';
+    el.style.paddingBottom = '4px';
+    el.style.marginBottom = '4px';
+    const icon = log.type === 'focus' ? '🎯' : '☕';
+    el.innerHTML = `<span>${log.date} ${log.time}</span> <strong style="float:right">${icon} ${log.minutes}m</strong>`;
+    list.appendChild(el);
+  });
+}
+
+function exportData() {
+  const data = {
+    sessions: localStorage.getItem('focusOS_sessions'),
+    todos: localStorage.getItem('focusOS_todos'),
+    notes: localStorage.getItem('focusOS_notes'),
+    goal: localStorage.getItem('focusOS_goal'),
+    history: localStorage.getItem('focusOS_history')
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'focusos_backup.json';
+  a.click();
+  showToast('💾 BACKUP EXPORTED!');
+}
+
+function importData() {
+  document.getElementById('importFile').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if(data.sessions) localStorage.setItem('focusOS_sessions', data.sessions);
+      if(data.todos) localStorage.setItem('focusOS_todos', data.todos);
+      if(data.notes) localStorage.setItem('focusOS_notes', data.notes);
+      if(data.goal) localStorage.setItem('focusOS_goal', data.goal);
+      if(data.history) localStorage.setItem('focusOS_history', data.history);
+      showToast('🔄 BACKUP RESTORED! Mereload...');
+      setTimeout(() => location.reload(), 1500);
+    } catch(err) {
+      showToast('⚠ FILE CORRUPT!');
+    }
+  };
+  reader.readAsText(file);
+}
+
 // ─── INIT ────────────────────────────────────────────────
 function init(){
   loadSessionData();
@@ -1157,6 +1267,7 @@ function init(){
   updateLog();
   updatePips();
   renderTimer();
+  renderLogs();
 
   todos = JSON.parse(localStorage.getItem('focusOS_todos') || '[]');
   renderTodos();
