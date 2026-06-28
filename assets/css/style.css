@@ -429,3 +429,61 @@ body{
   display: inline-block;
   animation: fireBounce 0.8s ease-in-out infinite;
 }
+/* STICKY NOTES */
+.sticky-note {
+  background: var(--yellow);
+  color: var(--text-color);
+  border: var(--border);
+  box-shadow: var(--shadow);
+  padding: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.1s;
+}
+body.dark-mode .sticky-note {
+  background: var(--yellow);
+  color: #121212;
+}
+.sticky-note:hover {
+  transform: translateY(-2px);
+}
+.sticky-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: \'Press Start 2P\', monospace;
+  font-size: 7px;
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+  padding-bottom: 4px;
+}
+.sticky-date {
+  opacity: 0.7;
+}
+.sticky-del {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.6;
+}
+.sticky-del:hover {
+  opacity: 1;
+  color: red;
+}
+.sticky-body {
+  width: 100%;
+  min-height: 60px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: \'DM Mono\', monospace;
+  font-size: 12px;
+  color: inherit;
+  line-height: 1.4;
+}

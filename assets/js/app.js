@@ -13,8 +13,8 @@ function init(){
   const savedGoal = localStorage.getItem('focusOS_goal');
   if(savedGoal) document.getElementById('dailyGoal').value = savedGoal;
 
-  const savedNotes = localStorage.getItem('focusOS_notes');
-  if(savedNotes) document.getElementById('notesArea').value = savedNotes;
+  loadNotes();
+  renderNotes();
 
   const savedSpotify = localStorage.getItem('focusOS_spotify');
   if(savedSpotify){

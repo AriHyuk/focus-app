@@ -162,7 +162,13 @@
     </div>
 
     <div id="tab-notes" class="tab-content">
-      <textarea class="notes-textarea" id="notesArea" placeholder="tulis catatan bebas di sini...&#10;&#10;auto-save otomatis ke localStorage." oninput="saveNotes()"></textarea>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span style="font-size:8px; align-self:center; font-family:'Press Start 2P',monospace; color:var(--text-color);">STICKY NOTES</span>
+        <button class="btn success" style="padding:6px 10px; font-size:8px" onclick="addStickyNote()">+ NEW NOTE</button>
+      </div>
+      <div id="notesContainer" style="display:grid; grid-template-columns:1fr; gap:12px; max-height:180px; overflow-y:auto; padding-right:4px; padding-bottom:8px;">
+        <!-- Notes will be injected here -->
+      </div>
     </div>
 
     <div id="tab-log" class="tab-content">

@@ -66,8 +66,88 @@ function deleteTodo(i){
 }
 
 // ─── NOTES ───────────────────────────────────────────────
+let stickyNotes = [];
+
+function loadNotes() {
+  const savedArray = localStorage.getItem('focusOS_notes_array');
+  if (savedArray) {
+    stickyNotes = JSON.parse(savedArray);
+  } else {
+    const oldNotes = localStorage.getItem('focusOS_notes');
+    if (oldNotes && oldNotes.trim() !== "") {
+      stickyNotes.push({
+        id: Date.now(),
+        text: oldNotes,
+        date: new Date().toLocaleDateString()
+      });
+      localStorage.removeItem('focusOS_notes');
+      saveNotes();
+    }
+  }
+}
+
 function saveNotes(){
-  localStorage.setItem('focusOS_notes', document.getElementById('notesArea').value);
+  localStorage.setItem('focusOS_notes_array', JSON.stringify(stickyNotes));
+}
+
+function renderNotes() {
+  const container = document.getElementById('notesContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  if (stickyNotes.length === 0) {
+    container.innerHTML = '<div class="todo-empty" style="display:block;">NO STICKY NOTES YET</div>';
+    return;
+  }
+  
+  stickyNotes.forEach((note, index) => {
+    const card = document.createElement('div');
+    card.className = 'sticky-note';
+    
+    const header = document.createElement('div');
+    header.className = 'sticky-header';
+    
+    const dateSpan = document.createElement('span');
+    dateSpan.className = 'sticky-date';
+    dateSpan.textContent = note.date;
+    
+    const delBtn = document.createElement('button');
+    delBtn.className = 'sticky-del';
+    delBtn.textContent = '×';
+    delBtn.onclick = () => deleteNote(index);
+    
+    header.appendChild(dateSpan);
+    header.appendChild(delBtn);
+    
+    const body = document.createElement('textarea');
+    body.className = 'sticky-body';
+    body.value = note.text;
+    body.placeholder = 'Ketik di sini...';
+    body.oninput = (e) => {
+      stickyNotes[index].text = e.target.value;
+      saveNotes();
+    };
+    
+    card.appendChild(header);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+function addStickyNote() {
+  stickyNotes.unshift({
+    id: Date.now(),
+    text: '',
+    date: new Date().toLocaleDateString()
+  });
+  saveNotes();
+  renderNotes();
+}
+
+function deleteNote(index) {
+  stickyNotes.splice(index, 1);
+  saveNotes();
+  renderNotes();
 }
 
 // ─── LOG HISTORY & BACKUP ────────────────────────────────
