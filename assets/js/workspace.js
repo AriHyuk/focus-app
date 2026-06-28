@@ -98,7 +98,7 @@ function renderLogs() {
   }
   sessionLogs.forEach(log => {
     const el = document.createElement('div');
-    el.style.borderBottom = '1px solid var(--black)';
+    el.style.borderBottom = '1px solid var(--border-color)';
     el.style.paddingBottom = '4px';
     el.style.marginBottom = '4px';
     const icon = log.type === 'focus' ? '🎯' : '☕';

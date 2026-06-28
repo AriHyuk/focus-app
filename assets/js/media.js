@@ -59,7 +59,7 @@ function buildYtSlot(containerId, videoId) {
           ? '🚫 VIDEO INI<br>TIDAK BISA<br>DI-EMBED<br><br>COBA VIDEO LAIN'
           : '⚠ GAGAL LOAD<br>VIDEO<br>(ERROR '+e.data+')';
         wrapper.innerHTML = `
-          <div style="aspect-ratio:16/9;border:3px solid var(--black);background:#f0ece0;
+          <div style="aspect-ratio:16/9;border:3px solid var(--border-color);background:#f0ece0;
                display:flex;align-items:center;justify-content:center;text-align:center;
                font-family:'Press Start 2P',monospace;font-size:7px;color:var(--red);
                line-height:2;padding:12px">${msg}</div>`;

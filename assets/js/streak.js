@@ -84,8 +84,8 @@ function updatePips(){
   container.style.gap = '4px';
 
   container.innerHTML = `
-    <div style="font-size: 36px; filter: drop-shadow(0 0 2px var(--black)); transition: all 0.3s; line-height: 1;">${char}</div>
-    <div style="font-family:'Press Start 2P', monospace; font-size: 8px; color: var(--black); margin-top: 4px;">
+    <div style="font-size: 36px; filter: drop-shadow(0 0 2px var(--shadow-color)); transition: all 0.3s; line-height: 1;">${char}</div>
+    <div style="font-family:'Press Start 2P', monospace; font-size: 8px; color: var(--text-color); margin-top: 4px;">
       ${sessionsToday} / ${goal} SESI
     </div>
   `;

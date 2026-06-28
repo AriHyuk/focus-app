@@ -1,23 +1,37 @@
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --black:#0d0d0d;
-  --white:#f5f0e8;
-  --yellow:#FFD600;
-  --red:#E84545;
-  --green:#00C27C;
-  --blue:#3B82F6;
-  --border:3px solid var(--black);
-  --shadow:4px 4px 0px var(--black);
+:root {
+  --bg-color: #f5f0e8;
+  --text-color: #0d0d0d;
+  --card-bg: #ffffff;
+  --accent-bg: #0d0d0d;
+  --accent-text: #FFD600;
+  --border-color: #0d0d0d;
+  --shadow-color: #0d0d0d;
+  
+  --yellow: #FFD600;
+  --red: #E84545;
+  --green: #00C27C;
+  --blue: #3B82F6;
+  --border: 3px solid var(--border-color);
+  --shadow: 4px 4px 0px var(--shadow-color);
 }
 body.dark-mode {
-  --black: #e0e0e0;
-  --white: #121212;
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --accent-bg: #2a2a2a;
+  --accent-text: #FFD600;
+  --border-color: #444;
+  --shadow-color: #000;
+  
   --yellow: #d4a000;
+  --red: #ff6b6b;
+  --green: #00e676;
 }
 body{
-  background:var(--white);
+  background:var(--bg-color);
   font-family:'DM Mono',monospace;
-  color:var(--black);
+  color:var(--text-color);
   padding:20px;
   min-height:100vh;
   transition: background 0.3s, color 0.3s;
@@ -28,8 +42,8 @@ body{
   justify-content:space-between;
   border:var(--border);
   box-shadow:var(--shadow);
-  background:var(--black);
-  color:var(--yellow);
+  background:var(--accent-bg);
+  color:var(--accent-text);
   padding:12px 20px;
   margin-bottom:16px;
   font-family:'Press Start 2P',monospace;
@@ -37,20 +51,20 @@ body{
 .os-title{font-size:13px;letter-spacing:2px}
 .os-right{display:flex;align-items:center;gap:20px;font-size:9px}
 .os-date{color:#aaa}
-.os-clock{color:var(--yellow)}
+.os-clock{color:var(--accent-text)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .card{
   border:var(--border);
   box-shadow:var(--shadow);
-  background:var(--white);
+  background:var(--card-bg);
   padding:16px;
 }
 .card-label{
   font-family:'Press Start 2P',monospace;
   font-size:7px;
   letter-spacing:1px;
-  background:var(--black);
-  color:var(--yellow);
+  background:var(--accent-bg);
+  color:var(--accent-text);
   display:inline-block;
   padding:4px 10px;
   margin-bottom:14px;
@@ -61,8 +75,8 @@ body{
   grid-column:1/-1;
   border:var(--border);
   box-shadow:var(--shadow);
-  background:var(--black);
-  color:var(--yellow);
+  background:var(--accent-bg);
+  color:var(--accent-text);
   padding:14px 20px;
   display:flex;
   align-items:center;
@@ -98,7 +112,7 @@ body{
   text-align:center;
   padding:24px 0 16px;
   letter-spacing:4px;
-  color:var(--black);
+  color:var(--text-color);
   line-height:1;
   transition:color .3s;
 }
@@ -115,19 +129,19 @@ body{
 .btn-row{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
 .btn{
   border:var(--border);
-  box-shadow:3px 3px 0 var(--black);
+  box-shadow:3px 3px 0 var(--shadow-color);
   background:var(--yellow);
   font-family:'Press Start 2P',monospace;
   font-size:7px;
   padding:9px 14px;
   cursor:pointer;
   transition:transform .08s,box-shadow .08s;
-  color:var(--black);
+  color:var(--text-color);
   letter-spacing:1px;
 }
 .btn:active{transform:translate(3px,3px);box-shadow:none}
 .btn:hover{background:#ffe033}
-.btn.secondary{background:var(--white)}
+.btn.secondary{background:var(--card-bg)}
 .btn.secondary:hover{background:#eee8d8}
 .btn.danger{background:var(--red);color:var(--white)}
 .btn.success{background:var(--green);color:var(--white)}
@@ -135,14 +149,14 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  border-top:2px solid var(--black);
+  border-top:2px solid var(--border-color);
   padding-top:10px;
   margin-top:4px;
 }
 .session-count{font-family:'Press Start 2P',monospace;font-size:8px}
 .dur-row{
   margin-top:12px;
-  border-top:2px solid var(--black);
+  border-top:2px solid var(--border-color);
   padding-top:12px;
   display:flex;
   gap:8px;
@@ -153,11 +167,11 @@ body{
 }
 .dur-row input{
   width:52px;
-  border:2px solid var(--black);
+  border:2px solid var(--border-color);
   padding:5px;
   font-family:'DM Mono',monospace;
   font-size:12px;
-  background:var(--white);
+  background:var(--card-bg);
   text-align:center;
   outline:none;
 }
@@ -188,12 +202,12 @@ body{
 }
 .streak-pip{
   width:40px;height:40px;
-  border:3px solid var(--black);
-  background:var(--white);
+  border:3px solid var(--border-color);
+  background:var(--card-bg);
   display:flex;align-items:center;justify-content:center;
   font-family:'Press Start 2P',monospace;
   font-size:10px;
-  box-shadow:3px 3px 0 var(--black);
+  box-shadow:3px 3px 0 var(--shadow-color);
   transition:background .2s;
 }
 .streak-pip.done{background:var(--yellow);box-shadow:none;transform:translate(2px,2px)}
@@ -220,12 +234,12 @@ body{
 .week-row{
   display:flex;gap:4px;
   margin-top:12px;
-  border-top:2px solid var(--black);
+  border-top:2px solid var(--border-color);
   padding-top:12px;
 }
 .day-box{
   flex:1;
-  border:2px solid var(--black);
+  border:2px solid var(--border-color);
   text-align:center;
   padding:5px 2px;
   font-family:'Press Start 2P',monospace;
@@ -240,7 +254,7 @@ body{
 .spotify-input{
   flex:1;
   border:var(--border);
-  background:var(--white);
+  background:var(--card-bg);
   font-family:'DM Mono',monospace;
   font-size:11px;
   padding:9px 12px;
@@ -268,20 +282,20 @@ body{
 .workspace-card{
   border:var(--border);
   box-shadow:var(--shadow);
-  background:var(--white);
+  background:var(--card-bg);
   padding:0;
   overflow:hidden;
 }
 .workspace-header{padding:16px 16px 0}
 .notes-tabs{
   display:flex;
-  border-bottom:3px solid var(--black);
+  border-bottom:3px solid var(--border-color);
   margin-top:12px;
 }
 .note-tab{
   border:none;
-  border-right:3px solid var(--black);
-  background:var(--white);
+  border-right:3px solid var(--border-color);
+  background:var(--card-bg);
   font-family:'Press Start 2P',monospace;
   font-size:7px;
   padding:8px 14px;
@@ -290,7 +304,7 @@ body{
   transition:background .1s;
 }
 .note-tab:last-child{border-right:none}
-.note-tab.active{background:var(--yellow);color:var(--black)}
+.note-tab.active{background:var(--yellow);color:var(--text-color)}
 .note-tab:hover:not(.active){background:#eee8d8}
 .tab-content{display:none}
 .tab-content.active{display:block}
@@ -301,8 +315,8 @@ body{
 }
 .todo-input{
   flex:1;
-  border:2px solid var(--black);
-  background:var(--white);
+  border:2px solid var(--border-color);
+  background:var(--card-bg);
   font-family:'DM Mono',monospace;
   font-size:12px;
   padding:8px 10px;
@@ -320,9 +334,9 @@ body{
 .todo-item:hover{background:#f8f4e8}
 .todo-item input[type=checkbox]{
   width:16px;height:16px;
-  border:2px solid var(--black);
+  border:2px solid var(--border-color);
   cursor:pointer;
-  accent-color:var(--yellow);
+  accent-color:var(--accent-text);
   flex-shrink:0;
 }
 .todo-item.done span{text-decoration:line-through;color:#bbb}
@@ -344,7 +358,7 @@ body{
   width:100%;
   min-height:250px;
   border:none;
-  background:var(--white);
+  background:var(--card-bg);
   font-family:'DM Mono',monospace;
   font-size:12px;
   padding:14px 16px;
@@ -358,8 +372,8 @@ body{
 .toast{
   position:fixed;
   bottom:24px;right:24px;
-  background:var(--black);
-  color:var(--yellow);
+  background:var(--accent-bg);
+  color:var(--accent-text);
   font-family:'Press Start 2P',monospace;
   font-size:8px;
   padding:12px 20px;
@@ -376,12 +390,12 @@ body{
 /* MEDIA TABS */
 .media-tabs{
   display:flex;
-  border-bottom:3px solid var(--black);
+  border-bottom:3px solid var(--border-color);
 }
 .media-tab{
   border:none;
-  border-right:3px solid var(--black);
-  background:var(--white);
+  border-right:3px solid var(--border-color);
+  background:var(--card-bg);
   font-family:'Press Start 2P',monospace;
   font-size:7px;
   padding:8px 14px;
@@ -390,7 +404,7 @@ body{
   transition:background .1s;
 }
 .media-tab:last-child{border-right:none}
-.media-tab.active{background:var(--yellow);color:var(--black)}
+.media-tab.active{background:var(--yellow);color:var(--text-color)}
 .media-tab:hover:not(.active){background:#eee8d8}
 .media-content{display:none}
 .media-content.active{display:block}
