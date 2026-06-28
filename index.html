@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOCUS OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0d0d0d;
+  --white:#f5f0e8;
+  --yellow:#FFD600;
+  --red:#E84545;
+  --green:#00C27C;
+  --blue:#3B82F6;
+  --border:3px solid #0d0d0d;
+  --shadow:4px 4px 0px #0d0d0d;
+}
+body{
+  background:var(--white);
+  font-family:'DM Mono',monospace;
+  color:var(--black);
+  padding:20px;
+  min-height:100vh;
+}
+.os-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border:var(--border);
+  box-shadow:var(--shadow);
+  background:var(--black);
+  color:var(--yellow);
+  padding:12px 20px;
+  margin-bottom:16px;
+  font-family:'Press Start 2P',monospace;
+}
+.os-title{font-size:13px;letter-spacing:2px}
+.os-right{display:flex;align-items:center;gap:20px;font-size:9px}
+.os-date{color:#aaa}
+.os-clock{color:var(--yellow)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{
+  border:var(--border);
+  box-shadow:var(--shadow);
+  background:var(--white);
+  padding:16px;
+}
+.card-label{
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  letter-spacing:1px;
+  background:var(--black);
+  color:var(--yellow);
+  display:inline-block;
+  padding:4px 10px;
+  margin-bottom:14px;
+}
+
+/* SESSION LOG */
+.session-log{
+  grid-column:1/-1;
+  border:var(--border);
+  box-shadow:var(--shadow);
+  background:var(--black);
+  color:var(--yellow);
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:2px;
+}
+.log-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:'Press Start 2P',monospace;
+}
+.log-val{font-size:18px;color:var(--white)}
+.log-label{font-size:6px;color:#aaa;letter-spacing:1px}
+.pixel-robot{
+  font-size:28px;
+  animation:robot-bob 1.5s ease-in-out infinite;
+  cursor:pointer;
+  user-select:none;
+}
+@keyframes robot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.log-status{
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  color:var(--green);
+  text-align:right;
+}
+
+/* POMODORO */
+.timer-display{
+  font-family:'Press Start 2P',monospace;
+  font-size:44px;
+  text-align:center;
+  padding:24px 0 16px;
+  letter-spacing:4px;
+  color:var(--black);
+  line-height:1;
+  transition:color .3s;
+}
+.timer-display.break-mode{color:var(--green)}
+.timer-display.urgent{color:var(--red)}
+.timer-status{
+  text-align:center;
+  font-size:8px;
+  color:#888;
+  margin-bottom:16px;
+  font-family:'Press Start 2P',monospace;
+  letter-spacing:1px;
+}
+.btn-row{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.btn{
+  border:var(--border);
+  box-shadow:3px 3px 0 var(--black);
+  background:var(--yellow);
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  padding:9px 14px;
+  cursor:pointer;
+  transition:transform .08s,box-shadow .08s;
+  color:var(--black);
+  letter-spacing:1px;
+}
+.btn:active{transform:translate(3px,3px);box-shadow:none}
+.btn:hover{background:#ffe033}
+.btn.secondary{background:var(--white)}
+.btn.secondary:hover{background:#eee8d8}
+.btn.danger{background:var(--red);color:var(--white)}
+.btn.success{background:var(--green);color:var(--white)}
+.session-info{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:2px solid var(--black);
+  padding-top:10px;
+  margin-top:4px;
+}
+.session-count{font-family:'Press Start 2P',monospace;font-size:8px}
+.dur-row{
+  margin-top:12px;
+  border-top:2px solid var(--black);
+  padding-top:12px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  font-size:8px;
+  font-family:'Press Start 2P',monospace;
+}
+.dur-row input{
+  width:52px;
+  border:2px solid var(--black);
+  padding:5px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  background:var(--white);
+  text-align:center;
+  outline:none;
+}
+.dur-row input:focus{box-shadow:inset 0 0 0 2px var(--yellow)}
+
+/* STREAK */
+.streak-big{
+  font-family:'Press Start 2P',monospace;
+  font-size:48px;
+  text-align:center;
+  padding:16px 0 6px;
+  color:var(--red);
+  line-height:1;
+}
+.streak-sublabel{
+  text-align:center;
+  font-size:7px;
+  font-family:'Press Start 2P',monospace;
+  color:#888;
+  margin-bottom:14px;
+  letter-spacing:1px;
+}
+.streak-progress{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:10px;
+}
+.streak-pip{
+  width:40px;height:40px;
+  border:3px solid var(--black);
+  background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Press Start 2P',monospace;
+  font-size:10px;
+  box-shadow:3px 3px 0 var(--black);
+  transition:background .2s;
+}
+.streak-pip.done{background:var(--yellow);box-shadow:none;transform:translate(2px,2px)}
+.streak-pip.active{background:#ffe8e8;border-color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.streak-target{
+  text-align:center;
+  font-size:7px;
+  font-family:'Press Start 2P',monospace;
+  color:#666;
+  margin-bottom:10px;
+}
+.streak-msg{
+  text-align:center;
+  font-size:7px;
+  font-family:'Press Start 2P',monospace;
+  border:2px solid var(--green);
+  color:var(--green);
+  padding:8px;
+  display:none;
+  letter-spacing:1px;
+}
+.streak-msg.show{display:block}
+.week-row{
+  display:flex;gap:4px;
+  margin-top:12px;
+  border-top:2px solid var(--black);
+  padding-top:12px;
+}
+.day-box{
+  flex:1;
+  border:2px solid var(--black);
+  text-align:center;
+  padding:5px 2px;
+  font-family:'Press Start 2P',monospace;
+  font-size:5px;
+  line-height:1.8;
+}
+.day-box.streaked{background:var(--yellow)}
+.day-box.today{border-color:var(--red);border-width:3px}
+
+/* SPOTIFY */
+.spotify-input-row{display:flex;gap:8px;margin-bottom:12px}
+.spotify-input{
+  flex:1;
+  border:var(--border);
+  background:var(--white);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  padding:9px 12px;
+  outline:none;
+}
+.spotify-input:focus{box-shadow:inset 0 0 0 2px var(--yellow)}
+.spotify-placeholder{
+  border:var(--border);
+  padding:28px 16px;
+  text-align:center;
+  background:#f0ece0;
+}
+.spotify-placeholder .ph-icon{
+  font-size:32px;
+  margin-bottom:10px;
+}
+.spotify-placeholder .ph-text{
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  color:#888;
+  line-height:2;
+}
+
+/* NOTES / TODO */
+.workspace-card{
+  border:var(--border);
+  box-shadow:var(--shadow);
+  background:var(--white);
+  padding:0;
+  overflow:hidden;
+}
+.workspace-header{padding:16px 16px 0}
+.notes-tabs{
+  display:flex;
+  border-bottom:3px solid var(--black);
+  margin-top:12px;
+}
+.note-tab{
+  border:none;
+  border-right:3px solid var(--black);
+  background:var(--white);
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  padding:8px 14px;
+  cursor:pointer;
+  color:#888;
+  transition:background .1s;
+}
+.note-tab:last-child{border-right:none}
+.note-tab.active{background:var(--yellow);color:var(--black)}
+.note-tab:hover:not(.active){background:#eee8d8}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.todo-input-row{
+  display:flex;gap:8px;
+  padding:12px 16px 10px;
+  border-bottom:2px solid #e0dcd0;
+}
+.todo-input{
+  flex:1;
+  border:2px solid var(--black);
+  background:var(--white);
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  padding:8px 10px;
+  outline:none;
+}
+.todo-input:focus{box-shadow:inset 0 0 0 2px var(--yellow)}
+.todo-list{max-height:200px;overflow-y:auto}
+.todo-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;
+  border-bottom:1px solid #e8e4d8;
+  font-size:12px;
+  transition:background .1s;
+}
+.todo-item:hover{background:#f8f4e8}
+.todo-item input[type=checkbox]{
+  width:16px;height:16px;
+  border:2px solid var(--black);
+  cursor:pointer;
+  accent-color:var(--yellow);
+  flex-shrink:0;
+}
+.todo-item.done span{text-decoration:line-through;color:#bbb}
+.todo-del{
+  margin-left:auto;background:none;border:none;
+  cursor:pointer;color:#ccc;font-size:16px;font-weight:bold;
+  padding:0 4px;
+  flex-shrink:0;
+}
+.todo-del:hover{color:var(--red)}
+.todo-empty{
+  text-align:center;
+  padding:24px;
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  color:#bbb;
+}
+.notes-textarea{
+  width:100%;
+  min-height:250px;
+  border:none;
+  background:var(--white);
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  padding:14px 16px;
+  resize:none;
+  outline:none;
+  line-height:1.7;
+  display:block;
+}
+
+/* NOTIF TOAST */
+.toast{
+  position:fixed;
+  bottom:24px;right:24px;
+  background:var(--black);
+  color:var(--yellow);
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  padding:12px 20px;
+  border:3px solid var(--yellow);
+  box-shadow:4px 4px 0 var(--yellow);
+  z-index:9999;
+  display:none;
+  letter-spacing:1px;
+  line-height:1.8;
+}
+.toast.show{display:block;animation:toastIn .2s ease}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="os-header">
+  <span class="os-title">▶ FOCUS_OS v1.0</span>
+  <div class="os-right">
+    <span class="os-date" id="osDate">--</span>
+    <span class="os-clock" id="osTime">--:--:--</span>
+  </div>
+</div>
+
+<!-- SESSION LOG BAR -->
+<div class="session-log" style="margin-bottom:14px">
+  <div class="log-item" title="robot mascot — klik buat reset harian (confirm dulu)">
+    <span class="pixel-robot" onclick="confirmResetDay()">🤖</span>
+  </div>
+  <div class="log-item">
+    <span class="log-val" id="logSessions">0</span>
+    <span class="log-label">SESI HARI INI</span>
+  </div>
+  <div class="log-item">
+    <span class="log-val" id="logMinutes">0 mnt</span>
+    <span class="log-label">MENIT FOKUS</span>
+  </div>
+  <div class="log-item">
+    <span class="log-val" id="logStreak">0</span>
+    <span class="log-label">HARI STREAK</span>
+  </div>
+  <div class="log-status" id="logStatus">READY TO GRIND</div>
+</div>
+
+<div class="grid">
+
+  <!-- POMODORO -->
+  <div class="card">
+    <span class="card-label">⏱ POMODORO</span>
+    <div class="timer-display" id="timerDisplay">25:00</div>
+    <div class="timer-status" id="timerStatus">FOCUS MODE</div>
+    <div class="btn-row">
+      <button class="btn" id="startBtn" onclick="toggleTimer()">START</button>
+      <button class="btn secondary" onclick="resetTimer()">RESET</button>
+      <button class="btn secondary" onclick="skipPhase()">SKIP ▶</button>
+    </div>
+    <div class="session-info">
+      <span class="session-count" id="sessionCount">SESSION 1</span>
+      <span style="font-family:'Press Start 2P',monospace;font-size:8px" id="phaseLabel">🎯 FOCUS</span>
+    </div>
+    <div class="dur-row">
+      <span>FOCUS:</span>
+      <input type="number" id="focusDur" value="25" min="1" max="90" onchange="onDurChange()">
+      <span>MIN</span>
+      <span style="margin-left:6px">BREAK:</span>
+      <input type="number" id="breakDur" value="5" min="1" max="30" onchange="onDurChange()">
+      <span>MIN</span>
+    </div>
+  </div>
+
+  <!-- STREAK -->
+  <div class="card">
+    <span class="card-label">🔥 STREAK</span>
+    <div class="streak-big" id="streakNum">0</div>
+    <div class="streak-sublabel">HARI BERTURUT-TURUT</div>
+    <div class="streak-progress">
+      <div class="streak-pip" id="pip1">1</div>
+      <div class="streak-pip" id="pip2">2</div>
+    </div>
+    <div class="streak-target">TARGET: 2 SESI / HARI = STREAK AKTIF</div>
+    <div class="streak-msg" id="streakMsg">✓ STREAK AKTIF HARI INI!</div>
+    <div class="week-row" id="weekRow"></div>
+  </div>
+
+  <!-- SPOTIFY -->
+  <div class="card">
+    <span class="card-label">🎵 MUSIC</span>
+    <div class="spotify-input-row">
+      <input class="spotify-input" id="spotifyUrl" placeholder="paste spotify URL di sini..." type="text" onkeydown="if(event.key==='Enter')loadSpotify()">
+      <button class="btn" onclick="loadSpotify()">LOAD</button>
+    </div>
+    <div id="spotifyContainer">
+      <div class="spotify-placeholder">
+        <div class="ph-icon">🎧</div>
+        <div class="ph-text">
+          PASTE SPOTIFY URL DI ATAS<br>
+          PLAYLIST / TRACK / ALBUM OK<br><br>
+          contoh:<br>
+          open.spotify.com/playlist/...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace-card">
+    <div class="workspace-header">
+      <span class="card-label">📝 WORKSPACE</span>
+    </div>
+    <div class="notes-tabs">
+      <button class="note-tab active" id="tab-btn-todo" onclick="switchTab('todo',this)">TO-DO</button>
+      <button class="note-tab" id="tab-btn-notes" onclick="switchTab('notes',this)">NOTES</button>
+    </div>
+
+    <div id="tab-todo" class="tab-content active">
+      <div class="todo-input-row">
+        <input class="todo-input" id="todoInput" placeholder="tambah task baru..." onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="btn success" onclick="addTodo()">+ ADD</button>
+      </div>
+      <div class="todo-list" id="todoList">
+        <div class="todo-empty" id="todoEmpty">NO TASKS YET — ADD ONE!</div>
+      </div>
+    </div>
+
+    <div id="tab-notes" class="tab-content">
+      <textarea class="notes-textarea" id="notesArea" placeholder="tulis catatan bebas di sini...&#10;&#10;auto-save otomatis ke localStorage." oninput="saveNotes()"></textarea>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+let timerInterval = null;
+let isRunning = false;
+let isFocus = true;
+let timeLeft = 25 * 60;
+let sessionsToday = 0;
+let focusSecondsToday = 0;
+let timerTick = 0;
+
+// ─── CLOCK ───────────────────────────────────────────────
+function pad(n){ return String(n).padStart(2,'0') }
+
+function updateClock(){
+  const n = new Date();
+  document.getElementById('osTime').textContent =
+    pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  document.getElementById('osDate').textContent =
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][n.getDay()]+' '+
+    n.getDate()+'/'+(n.getMonth()+1)+'/'+n.getFullYear();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── TOAST ───────────────────────────────────────────────
+function showToast(msg, duration=3000){
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), duration);
+}
+
+// ─── TIMER ───────────────────────────────────────────────
+function getFocusDur(){ return (parseInt(document.getElementById('focusDur').value)||25)*60 }
+function getBreakDur(){ return (parseInt(document.getElementById('breakDur').value)||5)*60 }
+
+function onDurChange(){
+  if(!isRunning){
+    timeLeft = isFocus ? getFocusDur() : getBreakDur();
+    renderTimer();
+  }
+}
+
+function renderTimer(){
+  const m = Math.floor(timeLeft/60);
+  const s = timeLeft % 60;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = pad(m)+':'+pad(s);
+  el.className = 'timer-display';
+  if(!isFocus) el.classList.add('break-mode');
+  else if(timeLeft <= 60 && isRunning) el.classList.add('urgent');
+  document.title = pad(m)+':'+pad(s)+' — FOCUS OS';
+}
+
+function toggleTimer(){
+  if(isRunning){
+    clearInterval(timerInterval);
+    isRunning = false;
+    document.getElementById('startBtn').textContent = 'RESUME';
+    document.getElementById('timerStatus').textContent = 'PAUSED';
+  } else {
+    isRunning = true;
+    document.getElementById('startBtn').textContent = 'PAUSE';
+    document.getElementById('timerStatus').textContent = isFocus ? 'FOCUS MODE' : 'BREAK TIME';
+    timerInterval = setInterval(()=>{
+      timeLeft--;
+      if(isFocus) focusSecondsToday++;
+      renderTimer();
+      updateLog();
+      if(timeLeft <= 0){
+        clearInterval(timerInterval);
+        isRunning = false;
+        if(isFocus){
+          sessionsToday++;
+          saveSessionData();
+          checkStreakUnlock();
+          showToast('✓ SESI SELESAI!<br>'+sessionsToday+' sesi hari ini 🔥');
+        } else {
+          showToast('☕ BREAK SELESAI!<br>SIAP FOKUS LAGI?');
+        }
+        isFocus = !isFocus;
+        timeLeft = isFocus ? getFocusDur() : getBreakDur();
+        document.getElementById('startBtn').textContent = 'START';
+        document.getElementById('timerStatus').textContent = isFocus ? 'SIAP FOKUS!' : 'BREAK TIME — REST!';
+        document.getElementById('phaseLabel').textContent = isFocus ? '🎯 FOCUS' : '☕ BREAK';
+        renderTimer();
+        updateLog();
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  isRunning = false;
+  isFocus = true;
+  timeLeft = getFocusDur();
+  document.getElementById('startBtn').textContent = 'START';
+  document.getElementById('timerStatus').textContent = 'FOCUS MODE';
+  document.getElementById('phaseLabel').textContent = '🎯 FOCUS';
+  renderTimer();
+}
+
+function skipPhase(){
+  clearInterval(timerInterval);
+  isRunning = false;
+  if(isFocus){
+    sessionsToday++;
+    saveSessionData();
+    checkStreakUnlock();
+    showToast('⏭ SKIP! SESI KE-'+sessionsToday+' DIHITUNG');
+  }
+  isFocus = !isFocus;
+  timeLeft = isFocus ? getFocusDur() : getBreakDur();
+  document.getElementById('startBtn').textContent = 'START';
+  document.getElementById('timerStatus').textContent = isFocus ? 'FOCUS MODE' : 'BREAK TIME';
+  document.getElementById('phaseLabel').textContent = isFocus ? '🎯 FOCUS' : '☕ BREAK';
+  renderTimer();
+  updateLog();
+}
+
+// ─── SESSION DATA ─────────────────────────────────────────
+function getTodayKey(){ return new Date().toDateString() }
+
+function saveSessionData(){
+  const key = getTodayKey();
+  let data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
+  data[key] = (data[key] || 0) + 1;
+  localStorage.setItem('focusOS_sessions', JSON.stringify(data));
+  document.getElementById('sessionCount').textContent = 'SESSION '+(sessionsToday+1);
+}
+
+function loadSessionData(){
+  const key = getTodayKey();
+  let data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
+  sessionsToday = data[key] || 0;
+  document.getElementById('sessionCount').textContent = 'SESSION '+(sessionsToday+1);
+}
+
+// ─── STREAK ──────────────────────────────────────────────
+function calcStreak(){
+  const data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
+  let streak = 0;
+  let d = new Date();
+  while(true){
+    const key = d.toDateString();
+    if((data[key] || 0) >= 2){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+
+function checkStreakUnlock(){
+  updatePips();
+  if(sessionsToday >= 2){
+    document.getElementById('streakMsg').classList.add('show');
+    if(sessionsToday === 2){
+      showToast('🔥 STREAK AKTIF!<br>2 SESI SELESAI HARI INI!', 4000);
+    }
+  }
+  buildWeekRow();
+}
+
+function updatePips(){
+  const p1 = document.getElementById('pip1');
+  const p2 = document.getElementById('pip2');
+  p1.className = 'streak-pip' + (sessionsToday >= 1 ? ' done' : '');
+  p1.textContent = sessionsToday >= 1 ? '✓' : '1';
+  p2.className = 'streak-pip' + (sessionsToday >= 2 ? ' done' : sessionsToday >= 1 ? ' active' : '');
+  p2.textContent = sessionsToday >= 2 ? '✓' : '2';
+}
+
+function buildWeekRow(){
+  const data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const today = new Date();
+  const row = document.getElementById('weekRow');
+  row.innerHTML = '';
+  for(let i = 6; i >= 0; i--){
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toDateString();
+    const done = (data[key] || 0) >= 2;
+    const isToday = i === 0;
+    const el = document.createElement('div');
+    el.className = 'day-box' + (done ? ' streaked' : '') + (isToday ? ' today' : '');
+    el.innerHTML = days[d.getDay()] + '<br>' + (done ? '🔥' : '·');
+    row.appendChild(el);
+  }
+}
+
+// ─── LOG BAR ─────────────────────────────────────────────
+function updateLog(){
+  document.getElementById('logSessions').textContent = sessionsToday;
+  document.getElementById('logMinutes').textContent = Math.floor(focusSecondsToday/60) + ' mnt';
+  const streak = calcStreak();
+  document.getElementById('logStreak').textContent = streak;
+  document.getElementById('streakNum').textContent = streak;
+  let status = 'READY TO GRIND';
+  if(sessionsToday >= 2) status = '🔥 STREAK AKTIF!';
+  else if(sessionsToday === 1) status = '1 LAGI UNTUK STREAK!';
+  else if(isRunning) status = '⏱ FOKUS SEKARANG...';
+  document.getElementById('logStatus').textContent = status;
+}
+
+function confirmResetDay(){
+  if(confirm('Reset data sesi hari ini? (streak tidak hilang, hanya counter hari ini)')){
+    const key = getTodayKey();
+    let data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
+    delete data[key];
+    localStorage.setItem('focusOS_sessions', JSON.stringify(data));
+    sessionsToday = 0;
+    focusSecondsToday = 0;
+    document.getElementById('streakMsg').classList.remove('show');
+    updateLog();
+    updatePips();
+    buildWeekRow();
+    showToast('↺ DATA HARI INI DIRESET');
+  }
+}
+
+// ─── SPOTIFY ─────────────────────────────────────────────
+function loadSpotify(){
+  let url = document.getElementById('spotifyUrl').value.trim();
+  if(!url){ showToast('⚠ PASTE URL SPOTIFY DULU!'); return; }
+  const match = url.match(/spotify\.com\/(playlist|track|album|artist)\/([a-zA-Z0-9]+)/);
+  if(match){
+    const embedUrl = 'https://open.spotify.com/embed/'+match[1]+'/'+match[2]+'?utm_source=generator&theme=0';
+    document.getElementById('spotifyContainer').innerHTML =
+      '<iframe style="border:3px solid #0d0d0d;display:block" src="'+embedUrl+'" width="100%" height="152" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy"></iframe>';
+    localStorage.setItem('focusOS_spotify', url);
+    showToast('♪ MUSIC LOADED!');
+  } else {
+    showToast('⚠ URL TIDAK VALID!<br>Gunakan link dari Spotify.');
+  }
+}
+
+// ─── TABS ────────────────────────────────────────────────
+function switchTab(tab, btnEl){
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.note-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btnEl.classList.add('active');
+}
+
+// ─── TODO ────────────────────────────────────────────────
+let todos = [];
+
+function saveTodos(){
+  localStorage.setItem('focusOS_todos', JSON.stringify(todos));
+}
+
+function renderTodos(){
+  const list = document.getElementById('todoList');
+  const empty = document.getElementById('todoEmpty');
+  list.innerHTML = '';
+  if(todos.length === 0){
+    list.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
+  todos.forEach((t, i) => {
+    const item = document.createElement('div');
+    item.className = 'todo-item' + (t.done ? ' done' : '');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = t.done;
+    cb.onchange = () => toggleTodo(i);
+    const span = document.createElement('span');
+    span.style.flex = '1';
+    span.textContent = t.text;
+    const del = document.createElement('button');
+    del.className = 'todo-del';
+    del.textContent = '×';
+    del.onclick = () => deleteTodo(i);
+    item.appendChild(cb);
+    item.appendChild(span);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+function addTodo(){
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if(!text) return;
+  todos.unshift({text, done: false});
+  saveTodos();
+  renderTodos();
+  input.value = '';
+}
+
+function toggleTodo(i){
+  todos[i].done = !todos[i].done;
+  saveTodos();
+  renderTodos();
+}
+
+function deleteTodo(i){
+  todos.splice(i, 1);
+  saveTodos();
+  renderTodos();
+}
+
+// ─── NOTES ───────────────────────────────────────────────
+function saveNotes(){
+  localStorage.setItem('focusOS_notes', document.getElementById('notesArea').value);
+}
+
+// ─── INIT ────────────────────────────────────────────────
+function init(){
+  loadSessionData();
+  buildWeekRow();
+  updateLog();
+  updatePips();
+  renderTimer();
+
+  todos = JSON.parse(localStorage.getItem('focusOS_todos') || '[]');
+  renderTodos();
+
+  const savedNotes = localStorage.getItem('focusOS_notes');
+  if(savedNotes) document.getElementById('notesArea').value = savedNotes;
+
+  const savedSpotify = localStorage.getItem('focusOS_spotify');
+  if(savedSpotify){
+    document.getElementById('spotifyUrl').value = savedSpotify;
+    loadSpotify();
+  }
+
+  if(sessionsToday >= 2){
+    document.getElementById('streakMsg').classList.add('show');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
