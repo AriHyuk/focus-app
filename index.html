@@ -146,6 +146,11 @@
     </div>
 
     <div id="tab-todo" class="tab-content active">
+      <div style="display:flex; justify-content:flex-end; gap:6px; margin-bottom:8px;">
+        <span style="font-size:7px; align-self:center; font-family:'Press Start 2P',monospace; color:var(--text-color);">SORT:</span>
+        <button class="btn" style="padding:4px; font-size:6px" onclick="sortTodos('desc')">HIGH ⬇</button>
+        <button class="btn" style="padding:4px; font-size:6px" onclick="sortTodos('asc')">LOW ⬆</button>
+      </div>
       <div class="todo-input-row" style="display:flex; gap:6px;">
         <select id="todoPrio" style="border:var(--border);background:var(--card-bg);color:var(--text-color);font-family:'Press Start 2P',monospace;font-size:8px;padding:6px;outline:none;cursor:pointer;flex-shrink:0;">
           <option value="">[ NONE ]</option>

@@ -1,8 +1,22 @@
 // ─── TODO ────────────────────────────────────────────────
 let todos = [];
+let editingTodoIndex = -1;
+let dragStartIndex = -1;
 
 function saveTodos(){
   localStorage.setItem('focusOS_todos', JSON.stringify(todos));
+}
+
+const prioValue = { high: 3, med: 2, low: 1, '': 0 };
+
+function sortTodos(order) {
+  todos.sort((a, b) => {
+    let valA = prioValue[a.prio] || 0;
+    let valB = prioValue[b.prio] || 0;
+    return order === 'desc' ? valB - valA : valA - valB;
+  });
+  saveTodos();
+  renderTodos();
 }
 
 function renderTodos(){
@@ -17,26 +31,103 @@ function renderTodos(){
   todos.forEach((t, i) => {
     const item = document.createElement('div');
     item.className = 'todo-item' + (t.done ? ' done' : '');
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = t.done;
-    cb.onchange = () => toggleTodo(i);
-    const span = document.createElement('span');
-    span.style.flex = '1';
+    item.draggable = true;
     
-    let prioTag = '';
-    if(t.prio === 'high') prioTag = '<span style="font-size:8px; font-weight:bold;">[HIGH]</span> ';
-    else if(t.prio === 'med') prioTag = '<span style="font-size:8px; font-weight:bold;">[MED]</span> ';
-    else if(t.prio === 'low') prioTag = '<span style="font-size:8px; font-weight:bold;">[LOW]</span> ';
+    // Drag & Drop
+    item.addEventListener('dragstart', (e) => {
+      dragStartIndex = i;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      item.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', () => {
+      item.classList.remove('drag-over');
+    });
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (dragStartIndex !== -1 && dragStartIndex !== i) {
+        const draggedItem = todos.splice(dragStartIndex, 1)[0];
+        todos.splice(i, 0, draggedItem);
+        saveTodos();
+        renderTodos();
+      }
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      dragStartIndex = -1;
+    });
+
+    const dragHandle = document.createElement('span');
+    dragHandle.className = 'drag-handle';
+    dragHandle.textContent = '≡';
     
-    span.innerHTML = prioTag + t.text;
-    const del = document.createElement('button');
-    del.className = 'todo-del';
-    del.textContent = '×';
-    del.onclick = () => deleteTodo(i);
-    item.appendChild(cb);
-    item.appendChild(span);
-    item.appendChild(del);
+    if (editingTodoIndex === i) {
+      // Edit Mode
+      const prioSelect = document.createElement('select');
+      prioSelect.style.cssText = "border:var(--border);background:var(--card-bg);color:var(--text-color);font-family:'Press Start 2P',monospace;font-size:6px;padding:2px;outline:none;cursor:pointer;";
+      prioSelect.innerHTML = `<option value="">[ NONE ]</option><option value="high">[ HIGH ]</option><option value="med">[ MED ]</option><option value="low">[ LOW ]</option>`;
+      prioSelect.value = t.prio;
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = t.text;
+      input.style.cssText = "flex:1; border:var(--border);background:var(--card-bg);color:var(--text-color);font-family:'DM Mono',monospace;font-size:10px;padding:4px;";
+      
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'btn success';
+      saveBtn.style.cssText = "padding:2px 4px; font-size:6px;";
+      saveBtn.textContent = "SAVE";
+      saveBtn.onclick = () => {
+        t.text = input.value;
+        t.prio = prioSelect.value;
+        editingTodoIndex = -1;
+        saveTodos();
+        renderTodos();
+      };
+
+      item.appendChild(dragHandle);
+      item.appendChild(prioSelect);
+      item.appendChild(input);
+      item.appendChild(saveBtn);
+    } else {
+      // Normal Mode
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = t.done;
+      cb.onchange = () => toggleTodo(i);
+      
+      const span = document.createElement('span');
+      span.style.flex = '1';
+      let prioTag = '';
+      if(t.prio === 'high') prioTag = '<span style="font-size:8px; font-weight:bold;">[HIGH]</span> ';
+      else if(t.prio === 'med') prioTag = '<span style="font-size:8px; font-weight:bold;">[MED]</span> ';
+      else if(t.prio === 'low') prioTag = '<span style="font-size:8px; font-weight:bold;">[LOW]</span> ';
+      span.innerHTML = prioTag + t.text;
+      
+      const editBtn = document.createElement('button');
+      editBtn.className = 'todo-edit-btn';
+      editBtn.textContent = '✎';
+      editBtn.onclick = () => {
+        editingTodoIndex = i;
+        renderTodos();
+      };
+      
+      const del = document.createElement('button');
+      del.className = 'todo-del';
+      del.textContent = '×';
+      del.onclick = () => deleteTodo(i);
+      
+      item.appendChild(dragHandle);
+      item.appendChild(cb);
+      item.appendChild(span);
+      item.appendChild(editBtn);
+      item.appendChild(del);
+    }
+    
     list.appendChild(item);
   });
 }

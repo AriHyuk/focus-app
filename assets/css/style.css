@@ -487,3 +487,37 @@ body.dark-mode .sticky-note {
   color: inherit;
   line-height: 1.4;
 }
+
+/* TODO EDIT & DRAG */
+.drag-handle {
+  cursor: grab;
+  opacity: 0.5;
+  padding: 0 4px;
+  font-size: 10px;
+  user-select: none;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.todo-item.dragging {
+  opacity: 0.5;
+  background: var(--yellow);
+  color: var(--black);
+}
+.todo-item.drag-over {
+  border-top: 2px solid var(--text-color);
+}
+.todo-edit-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.6;
+}
+.todo-edit-btn:hover {
+  opacity: 1;
+  color: var(--yellow);
+}
