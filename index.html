@@ -374,6 +374,41 @@ body{
 }
 .toast.show{display:block;animation:toastIn .2s ease}
 @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* MEDIA TABS */
+.media-tabs{
+  display:flex;
+  border-bottom:3px solid var(--black);
+}
+.media-tab{
+  border:none;
+  border-right:3px solid var(--black);
+  background:var(--white);
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;
+  padding:8px 14px;
+  cursor:pointer;
+  color:#888;
+  transition:background .1s;
+}
+.media-tab:last-child{border-right:none}
+.media-tab.active{background:var(--yellow);color:var(--black)}
+.media-tab:hover:not(.active){background:#eee8d8}
+.media-content{display:none}
+.media-content.active{display:block}
+.yt-container-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+@media (max-width: 768px) {
+  .yt-container-grid {
+    grid-template-columns:1fr;
+  }
+  .yt-input-row {
+    grid-template-columns:1fr !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -446,21 +481,51 @@ body{
     <div class="week-row" id="weekRow"></div>
   </div>
 
-  <!-- SPOTIFY -->
-  <div class="card">
-    <span class="card-label">🎵 MUSIC</span>
-    <div class="spotify-input-row">
-      <input class="spotify-input" id="spotifyUrl" placeholder="paste spotify URL di sini..." type="text" onkeydown="if(event.key==='Enter')loadSpotify()">
-      <button class="btn" onclick="loadSpotify()">LOAD</button>
+  <!-- MEDIA -->
+  <div class="workspace-card">
+    <div class="workspace-header" style="padding-bottom:12px">
+      <span class="card-label">🎵 MEDIA</span>
     </div>
-    <div id="spotifyContainer">
-      <div class="spotify-placeholder">
-        <div class="ph-icon">🎧</div>
-        <div class="ph-text">
-          PASTE SPOTIFY URL DI ATAS<br>
-          PLAYLIST / TRACK / ALBUM OK<br><br>
-          contoh:<br>
-          open.spotify.com/playlist/...
+    <div class="media-tabs">
+      <button class="media-tab active" id="media-tab-spotify" onclick="switchMediaTab('spotify', this)">SPOTIFY</button>
+      <button class="media-tab" id="media-tab-youtube" onclick="switchMediaTab('youtube', this)">YOUTUBE</button>
+    </div>
+
+    <!-- SPOTIFY TAB -->
+    <div id="media-spotify" class="media-content active" style="padding:16px">
+      <div class="spotify-input-row">
+        <input class="spotify-input" id="spotifyUrl" placeholder="paste spotify URL di sini..." type="text" onkeydown="if(event.key==='Enter')loadSpotify()">
+        <button class="btn" onclick="loadSpotify()">LOAD</button>
+      </div>
+      <div id="spotifyContainer">
+        <div class="spotify-placeholder">
+          <div class="ph-icon">🎧</div>
+          <div class="ph-text">
+            PASTE SPOTIFY URL DI ATAS<br>
+            PLAYLIST / TRACK / ALBUM OK<br><br>
+            contoh:<br>
+            open.spotify.com/playlist/...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YOUTUBE TAB -->
+    <div id="media-youtube" class="media-content" style="padding:16px">
+      <div class="yt-input-row" style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px; margin-bottom:12px">
+        <input class="spotify-input" id="ytUrl1" placeholder="YouTube URL 1 (lofi/music)..." type="text" onkeydown="if(event.key==='Enter')loadYoutube()">
+        <input class="spotify-input" id="ytUrl2" placeholder="YouTube URL 2 (ambient/scenery)..." type="text" onkeydown="if(event.key==='Enter')loadYoutube()">
+        <button class="btn" onclick="loadYoutube()">LOAD</button>
+      </div>
+      <div id="ytContainer" class="yt-container-grid">
+        <div class="spotify-placeholder" id="ytPlaceholder" style="grid-column:1/-1">
+          <div class="ph-icon">📺</div>
+          <div class="ph-text">
+            PASTE DUA URL YOUTUBE DI ATAS<br>
+            VIDEO / LIVE STREAM OK (MISAL: LOFI + RAIN)<br><br>
+            contoh:<br>
+            youtube.com/watch?v=... atau youtu.be/...
+          </div>
         </div>
       </div>
     </div>
@@ -735,6 +800,65 @@ function loadSpotify(){
   }
 }
 
+// ─── MEDIA TABS & YOUTUBE ─────────────────────────────────
+function switchMediaTab(tab, btnEl){
+  document.querySelectorAll('.media-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.media-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('media-'+tab).classList.add('active');
+  btnEl.classList.add('active');
+}
+
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+  if (url.trim().length === 11) {
+    return url.trim();
+  }
+  return null;
+}
+
+function loadYoutube(){
+  let url1 = document.getElementById('ytUrl1').value.trim();
+  let url2 = document.getElementById('ytUrl2').value.trim();
+  
+  if(!url1 && !url2){
+    showToast('⚠ PASTE MINIMAL SATU URL YOUTUBE!');
+    return;
+  }
+  
+  const id1 = extractYoutubeId(url1);
+  const id2 = extractYoutubeId(url2);
+  
+  if((url1 && !id1) || (url2 && !id2)){
+    showToast('⚠ URL YOUTUBE TIDAK VALID!');
+    return;
+  }
+  
+  let html = '';
+  if(id1){
+    html += `<iframe style="border:3px solid #0d0d0d;aspect-ratio:16/9" width="100%" src="https://www.youtube.com/embed/${id1}" title="YouTube video 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  }
+  if(id2){
+    html += `<iframe style="border:3px solid #0d0d0d;aspect-ratio:16/9" width="100%" src="https://www.youtube.com/embed/${id2}" title="YouTube video 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  }
+  
+  const container = document.getElementById('ytContainer');
+  container.innerHTML = html;
+  if (id1 && id2) {
+    container.style.gridTemplateColumns = '1fr 1fr';
+  } else {
+    container.style.gridTemplateColumns = '1fr';
+  }
+  
+  localStorage.setItem('focusOS_yt1', url1);
+  localStorage.setItem('focusOS_yt2', url2);
+  showToast('📺 YOUTUBE EMBED LOADED!');
+}
+
 // ─── TABS ────────────────────────────────────────────────
 function switchTab(tab, btnEl){
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -825,6 +949,14 @@ function init(){
   if(savedSpotify){
     document.getElementById('spotifyUrl').value = savedSpotify;
     loadSpotify();
+  }
+
+  const savedYt1 = localStorage.getItem('focusOS_yt1');
+  const savedYt2 = localStorage.getItem('focusOS_yt2');
+  if(savedYt1 || savedYt2){
+    if(savedYt1) document.getElementById('ytUrl1').value = savedYt1;
+    if(savedYt2) document.getElementById('ytUrl2').value = savedYt2;
+    loadYoutube();
   }
 
   if(sessionsToday >= 2){
