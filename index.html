@@ -465,6 +465,10 @@ body{
       <input type="number" id="breakDur" value="5" min="1" max="30" onchange="onDurChange()">
       <span>MIN</span>
     </div>
+    <div style="margin-top:12px;text-align:center;font-size:7px;font-family:'Press Start 2P',monospace;display:flex;align-items:center;justify-content:center;gap:6px">
+      <input type="checkbox" id="autoContinue" style="cursor:pointer" onchange="toggleAutoContinue()">
+      <label for="autoContinue" style="cursor:pointer;color:#888">AUTO-CONTINUE (▶|)</label>
+    </div>
   </div>
 
   <!-- STREAK -->
@@ -570,6 +574,57 @@ let timeLeft = 25 * 60;
 let sessionsToday = 0;
 let focusSecondsToday = 0;
 let timerTick = 0;
+let autoContinue = localStorage.getItem('focusOS_auto') === 'true';
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('autoContinue').checked = autoContinue;
+});
+
+function toggleAutoContinue() {
+  autoContinue = document.getElementById('autoContinue').checked;
+  localStorage.setItem('focusOS_auto', autoContinue);
+}
+
+// ─── AUDIO & NOTIF ───────────────────────────────────────
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+
+function notifyUser(msg) {
+  if (Notification.permission === 'granted') {
+    new Notification("FOCUS OS", { body: msg, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎯</text></svg>' });
+  }
+}
+
+// ─── SHORTCUTS ───────────────────────────────────────────
+window.addEventListener('keydown', (e) => {
+  // Abaikan jika sedang mengetik di input/textarea
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  
+  if (e.code === 'Space') {
+    e.preventDefault();
+    toggleTimer();
+  } else if (e.code === 'KeyR') {
+    e.preventDefault();
+    resetTimer();
+  } else if (e.code === 'KeyS') {
+    e.preventDefault();
+    skipPhase();
+  }
+});
 
 // ─── CLOCK ───────────────────────────────────────────────
 function pad(n){ return String(n).padStart(2,'0') }
@@ -622,6 +677,7 @@ function toggleTimer(){
     document.getElementById('startBtn').textContent = 'RESUME';
     document.getElementById('timerStatus').textContent = 'PAUSED';
   } else {
+    if (Notification.permission === 'default') Notification.requestPermission();
     isRunning = true;
     document.getElementById('startBtn').textContent = 'PAUSE';
     document.getElementById('timerStatus').textContent = isFocus ? 'FOCUS MODE' : 'BREAK TIME';
@@ -633,21 +689,37 @@ function toggleTimer(){
       if(timeLeft <= 0){
         clearInterval(timerInterval);
         isRunning = false;
+        playChime();
+        let notifMsg = "";
+        
         if(isFocus){
           sessionsToday++;
           saveSessionData();
           checkStreakUnlock();
-          showToast('✓ SESI SELESAI!<br>'+sessionsToday+' sesi hari ini 🔥');
+          notifMsg = '✓ SESI SELESAI! ' + sessionsToday + ' sesi hari ini 🔥';
         } else {
-          showToast('☕ BREAK SELESAI!<br>SIAP FOKUS LAGI?');
+          notifMsg = '☕ BREAK SELESAI! SIAP FOKUS LAGI?';
         }
+        
+        showToast(notifMsg);
+        notifyUser(notifMsg);
+        
         isFocus = !isFocus;
         timeLeft = isFocus ? getFocusDur() : getBreakDur();
-        document.getElementById('startBtn').textContent = 'START';
-        document.getElementById('timerStatus').textContent = isFocus ? 'SIAP FOKUS!' : 'BREAK TIME — REST!';
-        document.getElementById('phaseLabel').textContent = isFocus ? '🎯 FOCUS' : '☕ BREAK';
-        renderTimer();
-        updateLog();
+        
+        if (autoContinue) {
+          document.getElementById('timerStatus').textContent = isFocus ? 'FOCUS MODE' : 'BREAK TIME';
+          document.getElementById('phaseLabel').textContent = isFocus ? '🎯 FOCUS' : '☕ BREAK';
+          renderTimer();
+          updateLog();
+          toggleTimer();
+        } else {
+          document.getElementById('startBtn').textContent = 'START';
+          document.getElementById('timerStatus').textContent = isFocus ? 'SIAP FOKUS!' : 'BREAK TIME — REST!';
+          document.getElementById('phaseLabel').textContent = isFocus ? '🎯 FOCUS' : '☕ BREAK';
+          renderTimer();
+          updateLog();
+        }
       }
     }, 1000);
   }
