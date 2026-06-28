@@ -74,8 +74,10 @@
     <div class="streak-big" id="streakNum">0</div>
     <div class="streak-sublabel">HARI BERTURUT-TURUT</div>
     <div class="streak-progress" id="streakPips"></div>
-    <div class="streak-target">
-      TARGET: <input type="number" id="dailyGoal" value="2" min="1" max="12" onchange="updateDailyGoal()" style="width:30px;background:var(--white);color:var(--black);border:2px solid var(--black);font-family:'DM Mono',monospace;font-size:10px;text-align:center;outline:none"> SESI / HARI
+    <div class="streak-target" style="display:flex; justify-content:center; align-items:center; gap:8px; font-size:10px;">
+      TARGET: 
+      <input type="number" id="dailyGoal" value="2" min="1" max="12" onchange="updateDailyGoal()" style="width:40px; height:24px; background:var(--white); color:var(--black); border:2px solid var(--black); font-family:'DM Mono',monospace; font-size:12px; font-weight:bold; text-align:center; outline:none; padding:0;"> 
+      SESI/HARI
     </div>
     <div class="streak-msg" id="streakMsg">✓ STREAK AKTIF HARI INI!</div>
     <div class="week-row" id="weekRow"></div>
@@ -144,14 +146,14 @@
     </div>
 
     <div id="tab-todo" class="tab-content active">
-      <div class="todo-input-row">
-        <select id="todoPrio" style="border:var(--border);background:var(--white);color:var(--black);font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;outline:none">
-          <option value="">-</option>
-          <option value="high">🔴</option>
-          <option value="med">🟡</option>
-          <option value="low">🟢</option>
+      <div class="todo-input-row" style="display:flex; gap:6px;">
+        <select id="todoPrio" style="border:var(--border);background:var(--white);color:var(--black);font-size:12px;padding:4px;outline:none;cursor:pointer;flex-shrink:0;">
+          <option value="" title="No Priority">➖</option>
+          <option value="high" title="High Priority">🔴</option>
+          <option value="med" title="Medium Priority">🟡</option>
+          <option value="low" title="Low Priority">🟢</option>
         </select>
-        <input class="todo-input" id="todoInput" placeholder="tambah task baru..." onkeydown="if(event.key==='Enter')addTodo()">
+        <input class="todo-input" id="todoInput" placeholder="tambah task baru..." onkeydown="if(event.key==='Enter')addTodo()" style="flex:1;">
         <button class="btn success" onclick="addTodo()">+ ADD</button>
       </div>
       <div class="todo-list" id="todoList">

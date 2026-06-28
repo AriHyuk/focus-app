@@ -74,21 +74,21 @@ function checkStreakUnlock(){
 function updatePips(){
   const goal = getDailyGoal();
   const container = document.getElementById('streakPips');
-  container.innerHTML = '';
-  for(let i=1; i<=goal; i++) {
-    const pip = document.createElement('div');
-    if(sessionsToday >= i) {
-      pip.className = 'streak-pip done';
-      pip.textContent = '✓';
-    } else if(sessionsToday === i - 1) {
-      pip.className = 'streak-pip active';
-      pip.textContent = i;
-    } else {
-      pip.className = 'streak-pip';
-      pip.textContent = i;
-    }
-    container.appendChild(pip);
-  }
+  
+  let char = '😩'; // Belum mulai
+  if (sessionsToday > 0 && sessionsToday < goal) char = '😐'; // Progress
+  else if (sessionsToday >= goal) char = '🤩'; // Selesai
+  
+  container.style.flexDirection = 'column';
+  container.style.alignItems = 'center';
+  container.style.gap = '4px';
+
+  container.innerHTML = `
+    <div style="font-size: 36px; filter: drop-shadow(0 0 2px var(--black)); transition: all 0.3s; line-height: 1;">${char}</div>
+    <div style="font-family:'Press Start 2P', monospace; font-size: 8px; color: var(--black); margin-top: 4px;">
+      ${sessionsToday} / ${goal} SESI
+    </div>
+  `;
 }
 
 function buildWeekRow(){

@@ -3,7 +3,7 @@ function init(){
   loadSessionData();
   buildWeekRow();
   updateLog();
-  updatePips();
+  checkStreakUnlock();
   renderTimer();
   renderLogs();
 
@@ -30,9 +30,7 @@ function init(){
     loadYoutube();
   }
 
-  if(sessionsToday >= 2){
-    document.getElementById('streakMsg').classList.add('show');
-  }
+  // checkStreakUnlock sudah handle animasi dan UI streak
 }
 
 init();
