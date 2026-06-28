@@ -25,9 +25,9 @@ function renderTodos(){
     span.style.flex = '1';
     
     let prioTag = '';
-    if(t.prio === 'high') prioTag = '🔴 ';
-    else if(t.prio === 'med') prioTag = '🟡 ';
-    else if(t.prio === 'low') prioTag = '🟢 ';
+    if(t.prio === 'high') prioTag = '<span style="font-size:8px; font-weight:bold;">[HIGH]</span> ';
+    else if(t.prio === 'med') prioTag = '<span style="font-size:8px; font-weight:bold;">[MED]</span> ';
+    else if(t.prio === 'low') prioTag = '<span style="font-size:8px; font-weight:bold;">[LOW]</span> ';
     
     span.innerHTML = prioTag + t.text;
     const del = document.createElement('button');

@@ -147,11 +147,11 @@
 
     <div id="tab-todo" class="tab-content active">
       <div class="todo-input-row" style="display:flex; gap:6px;">
-        <select id="todoPrio" style="border:var(--border);background:var(--white);color:var(--black);font-size:12px;padding:4px;outline:none;cursor:pointer;flex-shrink:0;">
-          <option value="" title="No Priority">➖</option>
-          <option value="high" title="High Priority">🔴</option>
-          <option value="med" title="Medium Priority">🟡</option>
-          <option value="low" title="Low Priority">🟢</option>
+        <select id="todoPrio" style="border:var(--border);background:var(--white);color:var(--black);font-family:'Press Start 2P',monospace;font-size:8px;padding:6px;outline:none;cursor:pointer;flex-shrink:0;">
+          <option value="">[ NONE ]</option>
+          <option value="high">[ HIGH ]</option>
+          <option value="med">[ MED ]</option>
+          <option value="low">[ LOW ]</option>
         </select>
         <input class="todo-input" id="todoInput" placeholder="tambah task baru..." onkeydown="if(event.key==='Enter')addTodo()" style="flex:1;">
         <button class="btn success" onclick="addTodo()">+ ADD</button>
