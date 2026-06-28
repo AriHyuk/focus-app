@@ -14,8 +14,13 @@
   --red:#E84545;
   --green:#00C27C;
   --blue:#3B82F6;
-  --border:3px solid #0d0d0d;
-  --shadow:4px 4px 0px #0d0d0d;
+  --border:3px solid var(--black);
+  --shadow:4px 4px 0px var(--black);
+}
+body.dark-mode {
+  --black: #e0e0e0;
+  --white: #121212;
+  --yellow: #d4a000;
 }
 body{
   background:var(--white);
@@ -23,6 +28,7 @@ body{
   color:var(--black);
   padding:20px;
   min-height:100vh;
+  transition: background 0.3s, color 0.3s;
 }
 .os-header{
   display:flex;
@@ -416,6 +422,7 @@ body{
 <div class="os-header">
   <span class="os-title">▶ FOCUS_OS v1.0</span>
   <div class="os-right">
+    <span style="cursor:pointer;font-size:12px;user-select:none" onclick="toggleDarkMode()" id="darkModeToggle">🌙</span>
     <span class="os-date" id="osDate">--</span>
     <span class="os-clock" id="osTime">--:--:--</span>
   </div>
@@ -476,13 +483,13 @@ body{
     <span class="card-label">🔥 STREAK</span>
     <div class="streak-big" id="streakNum">0</div>
     <div class="streak-sublabel">HARI BERTURUT-TURUT</div>
-    <div class="streak-progress">
-      <div class="streak-pip" id="pip1">1</div>
-      <div class="streak-pip" id="pip2">2</div>
+    <div class="streak-progress" id="streakPips"></div>
+    <div class="streak-target">
+      TARGET: <input type="number" id="dailyGoal" value="2" min="1" max="12" onchange="updateDailyGoal()" style="width:30px;background:var(--white);color:var(--black);border:2px solid var(--black);font-family:'DM Mono',monospace;font-size:10px;text-align:center;outline:none"> SESI / HARI
     </div>
-    <div class="streak-target">TARGET: 2 SESI / HARI = STREAK AKTIF</div>
     <div class="streak-msg" id="streakMsg">✓ STREAK AKTIF HARI INI!</div>
     <div class="week-row" id="weekRow"></div>
+    <div id="weeklyChart" style="display:flex;align-items:flex-end;gap:4px;height:50px;margin-top:16px;border-bottom:2px solid var(--black);padding-bottom:2px;justify-content:space-between"></div>
   </div>
 
   <!-- MEDIA -->
@@ -547,6 +554,12 @@ body{
 
     <div id="tab-todo" class="tab-content active">
       <div class="todo-input-row">
+        <select id="todoPrio" style="border:var(--border);background:var(--white);color:var(--black);font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;outline:none">
+          <option value="">-</option>
+          <option value="high">🔴</option>
+          <option value="med">🟡</option>
+          <option value="low">🟢</option>
+        </select>
         <input class="todo-input" id="todoInput" placeholder="tambah task baru..." onkeydown="if(event.key==='Enter')addTodo()">
         <button class="btn success" onclick="addTodo()">+ ADD</button>
       </div>
@@ -772,14 +785,37 @@ function loadSessionData(){
   document.getElementById('sessionCount').textContent = 'SESSION '+(sessionsToday+1);
 }
 
-// ─── STREAK ──────────────────────────────────────────────
+// ─── DARK MODE ───────────────────────────────────────────
+let isDarkMode = localStorage.getItem('focusOS_dark') === 'true';
+if(isDarkMode) document.body.classList.add('dark-mode');
+
+function toggleDarkMode() {
+  isDarkMode = !isDarkMode;
+  if(isDarkMode) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  localStorage.setItem('focusOS_dark', isDarkMode);
+}
+
+// ─── STREAK & GOAL ───────────────────────────────────────
+function getDailyGoal() {
+  return parseInt(document.getElementById('dailyGoal').value) || 2;
+}
+
+function updateDailyGoal() {
+  let goal = getDailyGoal();
+  if(goal < 1) { goal = 1; document.getElementById('dailyGoal').value = 1; }
+  localStorage.setItem('focusOS_goal', goal);
+  checkStreakUnlock();
+}
+
 function calcStreak(){
   const data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
   let streak = 0;
   let d = new Date();
   while(true){
     const key = d.toDateString();
-    if((data[key] || 0) >= 2){
+    const goal = parseInt(localStorage.getItem('focusOS_goal')) || 2;
+    if((data[key] || 0) >= goal){
       streak++;
       d.setDate(d.getDate()-1);
     } else break;
@@ -789,22 +825,36 @@ function calcStreak(){
 
 function checkStreakUnlock(){
   updatePips();
-  if(sessionsToday >= 2){
+  const goal = getDailyGoal();
+  if(sessionsToday >= goal){
     document.getElementById('streakMsg').classList.add('show');
-    if(sessionsToday === 2){
-      showToast('🔥 STREAK AKTIF!<br>2 SESI SELESAI HARI INI!', 4000);
+    if(sessionsToday === goal){
+      showToast('🔥 STREAK AKTIF!<br>TARGET HARI INI TERCAPAI!', 4000);
     }
+  } else {
+    document.getElementById('streakMsg').classList.remove('show');
   }
   buildWeekRow();
 }
 
 function updatePips(){
-  const p1 = document.getElementById('pip1');
-  const p2 = document.getElementById('pip2');
-  p1.className = 'streak-pip' + (sessionsToday >= 1 ? ' done' : '');
-  p1.textContent = sessionsToday >= 1 ? '✓' : '1';
-  p2.className = 'streak-pip' + (sessionsToday >= 2 ? ' done' : sessionsToday >= 1 ? ' active' : '');
-  p2.textContent = sessionsToday >= 2 ? '✓' : '2';
+  const goal = getDailyGoal();
+  const container = document.getElementById('streakPips');
+  container.innerHTML = '';
+  for(let i=1; i<=goal; i++) {
+    const pip = document.createElement('div');
+    if(sessionsToday >= i) {
+      pip.className = 'streak-pip done';
+      pip.textContent = '✓';
+    } else if(sessionsToday === i - 1) {
+      pip.className = 'streak-pip active';
+      pip.textContent = i;
+    } else {
+      pip.className = 'streak-pip';
+      pip.textContent = i;
+    }
+    container.appendChild(pip);
+  }
 }
 
 function buildWeekRow(){
@@ -812,17 +862,50 @@ function buildWeekRow(){
   const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const today = new Date();
   const row = document.getElementById('weekRow');
+  const chart = document.getElementById('weeklyChart');
   row.innerHTML = '';
+  chart.innerHTML = '';
+  
+  const goal = getDailyGoal();
+  let maxSessions = goal;
+  for(let i = 6; i >= 0; i--){
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const count = data[d.toDateString()] || 0;
+    if(count > maxSessions) maxSessions = count;
+  }
+
   for(let i = 6; i >= 0; i--){
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const key = d.toDateString();
-    const done = (data[key] || 0) >= 2;
+    const count = data[key] || 0;
+    const done = count >= goal;
     const isToday = i === 0;
+    
     const el = document.createElement('div');
     el.className = 'day-box' + (done ? ' streaked' : '') + (isToday ? ' today' : '');
     el.innerHTML = days[d.getDay()] + '<br>' + (done ? '🔥' : '·');
     row.appendChild(el);
+    
+    const barWrap = document.createElement('div');
+    barWrap.style.flex = '1';
+    barWrap.style.display = 'flex';
+    barWrap.style.flexDirection = 'column';
+    barWrap.style.alignItems = 'center';
+    barWrap.style.justifyContent = 'flex-end';
+    barWrap.style.height = '100%';
+    
+    const bar = document.createElement('div');
+    bar.style.width = '100%';
+    bar.style.background = isToday ? 'var(--red)' : (done ? 'var(--yellow)' : '#888');
+    const heightPercent = maxSessions === 0 ? 0 : (count / maxSessions) * 100;
+    bar.style.height = heightPercent + '%';
+    bar.style.minHeight = '2px';
+    bar.title = `${count} sesi (${count * 25} menit)`;
+    
+    barWrap.appendChild(bar);
+    chart.appendChild(barWrap);
   }
 }
 
@@ -834,8 +917,9 @@ function updateLog(){
   document.getElementById('logStreak').textContent = streak;
   document.getElementById('streakNum').textContent = streak;
   let status = 'READY TO GRIND';
-  if(sessionsToday >= 2) status = '🔥 STREAK AKTIF!';
-  else if(sessionsToday === 1) status = '1 LAGI UNTUK STREAK!';
+  const goal = getDailyGoal();
+  if(sessionsToday >= goal) status = '🔥 STREAK AKTIF!';
+  else if(sessionsToday === goal - 1) status = '1 LAGI UNTUK STREAK!';
   else if(isRunning) status = '⏱ FOKUS SEKARANG...';
   document.getElementById('logStatus').textContent = status;
 }
@@ -1019,7 +1103,13 @@ function renderTodos(){
     cb.onchange = () => toggleTodo(i);
     const span = document.createElement('span');
     span.style.flex = '1';
-    span.textContent = t.text;
+    
+    let prioTag = '';
+    if(t.prio === 'high') prioTag = '🔴 ';
+    else if(t.prio === 'med') prioTag = '🟡 ';
+    else if(t.prio === 'low') prioTag = '🟢 ';
+    
+    span.innerHTML = prioTag + t.text;
     const del = document.createElement('button');
     del.className = 'todo-del';
     del.textContent = '×';
@@ -1033,12 +1123,14 @@ function renderTodos(){
 
 function addTodo(){
   const input = document.getElementById('todoInput');
+  const prioSelect = document.getElementById('todoPrio');
   const text = input.value.trim();
   if(!text) return;
-  todos.unshift({text, done: false});
+  todos.unshift({text, done: false, prio: prioSelect.value});
   saveTodos();
   renderTodos();
   input.value = '';
+  prioSelect.value = '';
 }
 
 function toggleTodo(i){
@@ -1068,6 +1160,9 @@ function init(){
 
   todos = JSON.parse(localStorage.getItem('focusOS_todos') || '[]');
   renderTodos();
+
+  const savedGoal = localStorage.getItem('focusOS_goal');
+  if(savedGoal) document.getElementById('dailyGoal').value = savedGoal;
 
   const savedNotes = localStorage.getItem('focusOS_notes');
   if(savedNotes) document.getElementById('notesArea').value = savedNotes;
