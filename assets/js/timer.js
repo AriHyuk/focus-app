@@ -108,6 +108,7 @@ function resetTimer(){
 function skipPhase(){
   clearInterval(timerInterval);
   isRunning = false;
+  checkDayChange();
   if(isFocus){
     sessionsToday++;
     saveSessionData();

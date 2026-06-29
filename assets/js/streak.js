@@ -10,10 +10,23 @@ function saveSessionData(){
 }
 
 function loadSessionData(){
+  window.currentDayKey = getTodayKey();
   const key = getTodayKey();
   let data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
   sessionsToday = data[key] || 0;
   document.getElementById('sessionCount').textContent = 'SESSION '+(sessionsToday+1);
+}
+
+function checkDayChange(){
+  if(window.currentDayKey !== getTodayKey()){
+    window.currentDayKey = getTodayKey();
+    sessionsToday = 0;
+    focusSecondsToday = 0;
+    document.getElementById('streakMsg').classList.remove('show');
+    loadSessionData();
+    buildWeekRow();
+    updatePips();
+  }
 }
 
 // ─── DARK MODE ───────────────────────────────────────────
@@ -43,9 +56,15 @@ function calcStreak(){
   const data = JSON.parse(localStorage.getItem('focusOS_sessions') || '{}');
   let streak = 0;
   let d = new Date();
+  const goal = parseInt(localStorage.getItem('focusOS_goal')) || 2;
+  
+  if((data[d.toDateString()] || 0) >= goal){
+    streak++;
+  }
+  
+  d.setDate(d.getDate()-1);
   while(true){
     const key = d.toDateString();
-    const goal = parseInt(localStorage.getItem('focusOS_goal')) || 2;
     if((data[key] || 0) >= goal){
       streak++;
       d.setDate(d.getDate()-1);
@@ -58,15 +77,20 @@ function checkStreakUnlock(){
   updatePips();
   const goal = getDailyGoal();
   const fireIcon = document.getElementById('streakFireIcon');
+  
+  if(calcStreak() > 0){
+    if(fireIcon) fireIcon.classList.add('active');
+  } else {
+    if(fireIcon) fireIcon.classList.remove('active');
+  }
+
   if(sessionsToday >= goal){
     document.getElementById('streakMsg').classList.add('show');
-    if(fireIcon) fireIcon.classList.add('active');
     if(sessionsToday === goal){
       showToast('🔥 STREAK AKTIF!<br>TARGET HARI INI TERCAPAI!', 4000);
     }
   } else {
     document.getElementById('streakMsg').classList.remove('show');
-    if(fireIcon) fireIcon.classList.remove('active');
   }
   buildWeekRow();
 }
@@ -145,6 +169,7 @@ function buildWeekRow(){
 
 // ─── LOG BAR ─────────────────────────────────────────────
 function updateLog(){
+  checkDayChange();
   document.getElementById('logSessions').textContent = sessionsToday;
   document.getElementById('logMinutes').textContent = Math.floor(focusSecondsToday/60) + ' mnt';
   const streak = calcStreak();
